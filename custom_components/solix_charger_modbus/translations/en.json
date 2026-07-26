@@ -1,0 +1,68 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Anker SOLIX charger",
+        "description": "Enter Modbus TCP settings from the charger app Integration page.",
+        "data": {
+          "name": "Name",
+          "host": "IP address or hostname",
+          "port": "Port",
+          "slave_id": "Slave ID",
+          "scan_interval": "Poll interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Unable to connect or read Modbus registers."
+    },
+    "abort": {
+      "already_configured": "This charger is already configured."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "connected": {
+        "name": "Connected"
+      },
+      "pwm_enabled": {
+        "name": "PWM enabled"
+      },
+      "ocpp_connected": {
+        "name": "OCPP connected"
+      },
+      "mqtt_connected": {
+        "name": "MQTT connected"
+      }
+    },
+    "sensor": {
+      "charging_status": {
+        "name": "Charging status"
+      },
+      "total_active_power": {
+        "name": "Charging active power"
+      },
+      "charging_capacity": {
+        "name": "Current session energy"
+      },
+      "max_current_setting": {
+        "name": "Max current setting"
+      },
+      "product_number": {
+        "name": "Product number"
+      },
+      "model_name": {
+        "name": "Model name"
+      },
+      "serial_number": {
+        "name": "Serial number"
+      },
+      "software_version": {
+        "name": "Software version"
+      },
+      "hardware_version": {
+        "name": "Hardware version"
+      }
+    }
+  }
+}

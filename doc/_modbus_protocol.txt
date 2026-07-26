@@ -1,0 +1,580 @@
+Anker SOLIX V1 Smart EV Charger
+Modbus Protocol
+Version: V 1.0.0
+Date: 30-11-2025
+LIVE IN POWER
+Anker Innovations Ltd. 
+© 2025 Anker Innovations Ltd. 
+All rights reserved.
+No part of this document may be reproduced or 
+transmitted in any form or by any means without 
+prior written consent of Anker Innovations Ltd.
+Trademarks and Permissions
+Anker SOLIX and Anker are trademarks of Anker 
+Innovations Ltd. and/or its a/f_f.ligailiates. 
+All other trademarks and trade names mentioned 
+in this document are the property of their 
+respective holders.
+Version: V 1.0.0 (30-11-2025) 01© 2025 Anker Innovations Ltd. 
+Anker SOLIX V1 Smart EV Charger
+Modbus Protocol
+Revision History
+Introduction
+Supported Devices:
+A5191GZ2, A5191GZ3, A5191VZ0, A5191VZ1, A5191GZ4, A5191GZ7, A5191VZ2, A5191VZ3, 
+A51913Z0, A51913Z1, A5191TZ, A5191TZ2
+Version Updated Date Updated Page Revisions
+V1.0.0 30/11/2025 All Initial release
+Version: V 1.0.0 (30-11-2025) 02© 2025 Anker Innovations Ltd. 
+The system supports the Modbus TCP protocol via Ethernet or Wi-Fi. Please ensure 
+the local control box and Anker SOLIX V1 Smart EV Charger are connected to the 
+same network, and that the control box supports the required control protocol.
+Local Controller
+Anker SOLIX V1 Smart EV Charger
+Home Router
+Ethernet / Wi-Fi
+Ethernet / Wi-Fi
+Anker SOLIX V1 Smart EV Charger
+Modbus Protocol
+Activate Modbus TCP Communication
+Anker SOLIX V1 Smart EV Charger supports the Modbus TCP communication protocol 
+for integration with external monitoring or control systems through Wi-Fi or Ethernet. 
+This enables energy management systems or supervisory controllers to start or stop 
+charging, monitor charger status, collect operational data, and manage charging 
+operations. 
+To Activate Modbus TCP
+1. Open the Anker app, select V1 Smart EV Charger, and tap the Settings icon on the 
+device details page.
+2. Select Integrations from the menu.
+3. Toggle the switch to enable the Modbus TCP function.
+Modbus TCP Ethernet / Wi-Fi Server Port 502
+Supports a maximum of 
+two clients connected 
+simultaneously (e.g., EMS 
+and debugging tool).
+Mode Inte/r_f.ligaace Role Port Remarks
+Note
+The local IP address and port number are obtained automatically from the 
+connected network. You can copy these values for communication with external 
+systems.
+Version: V 1.0.0 (30-11-2025) 03© 2025 Anker Innovations Ltd. 
+Anker SOLIX V1 Smart EV Charger
+Modbus Protocol
+Note
+When set to Automatic, the charger automatically follows its own control 
+strategy.
+If both Wi-Fi and Ethernet are connected, the system will prioritise Ethernet 
+for IP and port display.
+Version: V 1.0.0 (30-11-2025) 04© 2025 Anker Innovations Ltd. 
+4. Configure Max Current, Timeout, and Phase via the connected systems within the 
+following ranges:
+• Max Current: 0 - 16A / 32A (The maximum current depends on the rated current 
+of your V1 Smart EV Charger. Charging pauses automatically when the current is 
+below 6A.)
+• Timeout: > 5 s
+• Phase: Fixed Single-phase, Fixed Three-phase, or Automatic
+Integrations
+Modbus TCP ?
+Settings
+Anker-De...
+Connecting...
+100%
+O/f_f.liga
+Bluetooth
+Wi-Fi
+Integrations
+LED Brightness
+Lock Cable
+RCD Test
+Factory Reset
+Reboot
+Utility Rate Plan
+Max Current 32A
+O/f_f.liga
+O/f_f.liga
+O/f_f.liga
+Load Balancing
+Solar Charging
+Auto Charging Restart
+Charge Sessions
+A
+Anker SOLIX V1 Smart EV Charger
+Modbus Protocol
+Description
+Version: V 1.0.0 (30-11-2025) 05© 2025 Anker Innovations Ltd. 
+Function Code
+Product Number
+Model Name
+Serial Number
+So/f_t.ligaware Version
+Hardware Version
+Rated Power (Pn)
+Minimum Output Current
+Maximum Output Current
+Alarm Information 1
+Alarm Information 2
+Alarm Information 3
+Alarm Information 4
+Alarm Information 5
+Alarm Information 6
+Alarm Information 7
+Alarm Information 8
+Alarm Information 9
+Alarm Information 10
+Alarm Information 11
+Alarm Information 12
+L1-N Voltage
+L2-N Voltage
+L3-N Voltage
+L1-L2 Voltage
+L2-L3 Voltage
+L3-L1 Voltage
+L1 Current
+L2 Current
+L3 Current
+L1 Active Power
+L2 Active Power
+L3 Active Power
+Total Charging Active Power
+L1 Reactive Power
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+UINT16
+STRING
+STRING
+STRING
+STRING
+INT32
+INT32
+INT32
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+/
+/
+/
+/
+/
+W
+W
+KVA
+1
+10
+12
+6
+6
+2
+2
+2
+20000
+20001
+20011
+20023
+20029
+20035
+20037
+20039
+20041
+20042
+20043
+20044
+20045
+20046
+20047
+20048
+20049
+20050
+20051
+20052
+/
+/
+/
+/
+/
+1
+1
+1
+/
+/
+/
+/
+/
+/
+/
+/
+/
+/
+/
+/
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+UINT32
+UINT32
+UINT32
+UINT32
+UINT32
+20053
+20054
+20055
+20056
+20057
+20058
+20059
+20060
+20061
+20062
+20064
+20066
+20068
+20070
+V
+V
+V
+V
+V
+V
+A
+A
+A
+W
+W
+W
+W
+W
+1
+1
+1
+1
+1
+1
+1
+1
+1
+2
+2
+2
+2
+2
+10
+10
+10
+10
+10
+10
+100
+100
+100
+1
+1
+1
+1
+1
+Function Signal Name R/W Type Unit Gain Number Address Comment
+Each BIT represents an alarm, 
+refer to the alarm list for details.
+Intrinsic Information
+AC Charging
+Information
+Alarm
+Anker SOLIX V1 Smart EV Charger
+Modbus Protocol
+Version: V 1.0.0 (30-11-2025) 06© 2025 Anker Innovations Ltd. 
+L2 Reactive Power
+L3 Reactive Power
+L1 Apparent Power
+L2 Apparent Power
+L3 Apparent Power
+Current Charging Session 
+Duration
+Single / Three-Phase 
+Operating Mode
+Current Charging Capacity
+PWM Enabled Status
+Charging Mode
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+RO
+UINT32
+UINT32
+UINT32
+UINT32
+UINT32
+UINT32
+UINT32
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+W
+W
+W
+W
+W
+s
+Wh
+/
+/
+/
+/
+/
+/
+2
+2
+2
+2
+2
+2
+2
+1
+1
+1
+1
+1
+1
+20072
+20074
+20076
+20078
+20080
+20082
+20084
+20086
+20087
+20088
+20089
+20090
+20091
+1
+1
+1
+1
+1
+1
+1
+/
+/
+/
+/
+/
+/
+RO
+RO
+RO
+RO
+INT16
+INT16
+UINT16
+UINT16
+°C
+°C
+/
+%
+1
+1
+1
+1
+20093
+20094
+20095
+20096
+1
+1
+/
+1
+Load Balancing Enabled 
+Status
+Solar Power Balancing 
+Enabled Status
+CP Acquisition Voltage
+CP Signal Status RO UINT16 / / 1 20092
+Charging Status RO UINT16 / / 1 20097
+RW UINT16 A / 1 21005
+Relay 1 Temperature
+Relay 2 Temperature
+Boost Mode
+LED Light Brightness
+Charging Command
+Maximum Current Setting
+Boost Mode
+Set Timeout
+Reserved for Future Use
+Set the Number of
+Charging Phases
+Reserved for Future Use
+OCPP Connection Status
+MQTT Connection Status
+RO
+RO
+RO
+UINT16
+UINT16
+UINT16
+/
+/
+/
+/
+/
+/
+1
+1
+1
+20098
+20099
+20100
+RW
+RW
+RW
+RW
+RW
+UINT16
+UINT16
+UINT16
+UINT16
+UINT16
+/
+W
+/
+A
+A
+/
+10
+1
+1
+10
+1
+1
+1
+1
+1
+21000
+21001
+21002
+21003
+21004
+Function Signal Name R/W Type Unit Gain Number Address Comment
+0: Disabled
+/one.tf: Enabled
+0 - /one.tf00%
+0: (A: 12V) 3: (B1: 9V) 4: (B2: 9V) 
+5: (C1: 6V) 6: (C2: 6V) 7: Error   
+8: (D1: 3V) 9: (D2: 3V) 10: (E: 0V) 
+11: (F: -12v)
+0: Solar + Grid
+/one.tf: Only Solar
+0: Disabled
+/one.tf: Enabled
+AC Charging
+Information
+AC Control
+Information
+0: Disabled
+/one.tf: Enabled
+/one.tf: Single-Phase
+3: Three-Phase
+0: Disabled
+/one.tf: Enabled
+0: Idle   /one.tf: Preparing   2: Charging
+3: Charger Paused   4: Vehicle 
+Paused   5: Charging Completed   
+6: Reserving   7: Disabled   8: Error
+0: Not Connected     /one.tf: Connecting
+2: Connected
+0: Not Connected
+/one.tf: Connected
+/one.tf: Start Charging
+2: Stop Charging
+The system will pause if the current is 
+below the system's maximum (6A).
+1: On (Effective once per current 
+charging session)
+0: Default (Device automatically 
+switches between fixed 
+single-phase and fixed 
+three-phase.)
+/one.tf: Fixed Single-Phase
+2: Fixed Three-Phase
+s > 5 s
