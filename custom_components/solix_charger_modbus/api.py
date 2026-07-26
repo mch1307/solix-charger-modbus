@@ -3,13 +3,18 @@
 from __future__ import annotations
 
 import asyncio
+import re
 from typing import Any
 
 from pymodbus.client import AsyncModbusTcpClient
 from pymodbus.exceptions import ModbusException
 
 from .const import (
+    CHARGING_COMMAND_START,
+    CHARGING_COMMAND_STOP,
     CHARGING_STATUS_MAP,
+    MAX_CHARGING_CURRENT_SETTING_A,
+    REG_CHARGING_COMMAND,
     REG_CHARGING_STATUS,
     REG_CURRENT_CHARGING_CAPACITY,
     REG_HARDWARE_VERSION,
@@ -82,6 +87,11 @@ class SolixChargerModbusClient:
         ocpp_connected = bool(await self._read_u16(REG_OCPP_CONNECTION))
         mqtt_connected = bool(await self._read_u16(REG_MQTT_CONNECTION))
         max_current_setting_a = await self._read_u16(REG_MAX_CURRENT_SETTING)
+        max_supported_current_a = self._infer_max_supported_current_a(
+            product_number=product_number,
+            model_name=model_name,
+            hardware_version=hardware_version,
+        )
 
         return {
             "product_number": product_number,
@@ -98,7 +108,25 @@ class SolixChargerModbusClient:
             "ocpp_connected": ocpp_connected,
             "mqtt_connected": mqtt_connected,
             "max_current_setting_a": float(max_current_setting_a),
+            "max_supported_current_a": float(max_supported_current_a),
         }
+
+    async def async_start_charging(self) -> None:
+        """Start charging through the documented command register."""
+        await self._write_u16(REG_CHARGING_COMMAND, CHARGING_COMMAND_START)
+
+    async def async_stop_charging(self) -> None:
+        """Stop charging through the documented command register."""
+        await self._write_u16(REG_CHARGING_COMMAND, CHARGING_COMMAND_STOP)
+
+    async def async_set_max_current(self, current_a: int) -> None:
+        """Set the charging current limit in amperes."""
+        if current_a < 0 or current_a > MAX_CHARGING_CURRENT_SETTING_A:
+            raise SolixModbusError(
+                f"Charging current must be between 0 and {MAX_CHARGING_CURRENT_SETTING_A} A."
+            )
+
+        await self._write_u16(REG_MAX_CURRENT_SETTING, current_a)
 
     async def async_close(self) -> None:
         """Close the underlying Modbus connection."""
@@ -164,6 +192,68 @@ class SolixChargerModbusClient:
             address=doc_address + self._address_offset,
             count=count,
         )
+
+    async def _write_holding_register(self, doc_address: int, value: int) -> None:
+        """Write a single holding register using the detected address offset."""
+        if self._client is None:
+            raise SolixModbusCommunicationError("Client is not connected.")
+
+        try:
+            async with asyncio.timeout(10):
+                response = await self._client.write_register(
+                    address=doc_address + self._address_offset,
+                    value=value,
+                    slave=self._slave_id,
+                )
+        except TimeoutError as exception:
+            raise SolixModbusCommunicationError(
+                f"Timeout writing address {doc_address}."
+            ) from exception
+        except ModbusException as exception:
+            raise SolixModbusCommunicationError(
+                f"Modbus error writing address {doc_address}: {exception}"
+            ) from exception
+        except Exception as exception:  # pylint: disable=broad-except
+            raise SolixModbusCommunicationError(
+                f"Unexpected error writing address {doc_address}: {exception}"
+            ) from exception
+
+        if response.isError():
+            raise SolixModbusCommunicationError(
+                f"Device returned Modbus exception while writing {doc_address}."
+            )
+
+    async def _write_u16(self, doc_address: int, value: int) -> None:
+        """Write an unsigned 16-bit value."""
+        await self._write_holding_register(doc_address, value)
+
+    @staticmethod
+    def _infer_max_supported_current_a(
+        *,
+        product_number: int,
+        model_name: str,
+        hardware_version: str,
+    ) -> int:
+        """Infer the supported current limit from charger identity metadata.
+
+        The protocol documents the writable range as 0-16A or 0-32A depending on
+        the charger variant, but it does not expose a dedicated capability register.
+        """
+        identity_text = " ".join(
+            (
+                str(product_number),
+                model_name,
+                hardware_version,
+            )
+        ).lower()
+
+        if re.search(r"\b16\s*a\b|\b16a\b", identity_text):
+            return 16
+
+        if re.search(r"\b32\s*a\b|\b32a\b", identity_text):
+            return 32
+
+        return MAX_CHARGING_CURRENT_SETTING_A
 
     async def _read_u16(self, doc_address: int) -> int:
         """Read an unsigned 16-bit value."""

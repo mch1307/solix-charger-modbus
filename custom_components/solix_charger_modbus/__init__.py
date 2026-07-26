@@ -25,8 +25,10 @@ if TYPE_CHECKING:
     from .data import SolixConfigEntry
 
 PLATFORMS: list[Platform] = [
+    Platform.BUTTON,
     Platform.SENSOR,
     Platform.BINARY_SENSOR,
+    Platform.NUMBER,
 ]
 
 

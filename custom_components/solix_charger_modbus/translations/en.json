@@ -35,6 +35,14 @@
         "name": "MQTT connected"
       }
     },
+    "button": {
+      "start_charging": {
+        "name": "Start charging"
+      },
+      "stop_charging": {
+        "name": "Stop charging"
+      }
+    },
     "sensor": {
       "charging_status": {
         "name": "Charging status"
@@ -62,6 +70,11 @@
       },
       "hardware_version": {
         "name": "Hardware version"
+      }
+    },
+    "number": {
+      "charging_current_limit": {
+        "name": "Charging current limit"
       }
     }
   }
