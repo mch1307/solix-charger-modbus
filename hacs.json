@@ -1,5 +1,5 @@
 {
-    "name": "solix-charger-ha",
+    "name": "solix-charger-modbus",
     "homeassistant": "2026.6.4",
     "hacs": "2.0.5"
 }
