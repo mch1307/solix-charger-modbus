@@ -44,14 +44,17 @@ class SolixConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             )
 
             try:
-                await client.async_validate_connection()
+                discovered_slave_id, _discovered_address_offset = (
+                    await client.async_validate_connection()
+                )
+                normalized_input[CONF_SLAVE_ID] = discovered_slave_id
             except SolixModbusConnectionError:
                 LOGGER.exception(
                     "Failed to connect to Modbus charger during setup"
                 )
                 errors["base"] = "cannot_connect"
             except SolixModbusReadError:
-                LOGGER.exception(
+                LOGGER.warning(
                     "Connected to Modbus charger, but register validation failed"
                 )
                 errors["base"] = "cannot_read_registers"

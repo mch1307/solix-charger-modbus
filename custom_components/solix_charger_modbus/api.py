@@ -57,8 +57,11 @@ class SolixChargerModbusClient:
         self._client: AsyncModbusTcpClient | None = None
         self._address_offset = 0
 
-    async def async_validate_connection(self) -> None:
-        """Validate Modbus connectivity and register addressing."""
+    async def async_validate_connection(self) -> tuple[int, int]:
+        """Validate Modbus connectivity and register addressing.
+
+        Returns the slave ID and register offset that successfully responded.
+        """
         await self._async_ensure_connected()
 
         candidate_slave_ids = [self._slave_id]
@@ -79,7 +82,7 @@ class SolixChargerModbusClient:
 
         if successful_slave_id is not None:
             self._slave_id = successful_slave_id
-            return
+            return self._slave_id, self._address_offset
 
         self._slave_id = candidate_slave_ids[0]
 
