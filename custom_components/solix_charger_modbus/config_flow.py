@@ -7,7 +7,12 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, CONF_SCAN_INTERVAL
 from homeassistant.helpers import selector
 
-from .api import SolixChargerModbusClient, SolixModbusCommunicationError
+from .api import (
+    SolixChargerModbusClient,
+    SolixModbusCommunicationError,
+    SolixModbusConnectionError,
+    SolixModbusReadError,
+)
 from .const import (
     CONF_SLAVE_ID,
     DEFAULT_NAME,
@@ -38,8 +43,12 @@ class SolixConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             try:
                 await client.async_validate_connection()
-            except SolixModbusCommunicationError:
+            except SolixModbusConnectionError:
                 errors["base"] = "cannot_connect"
+            except SolixModbusReadError:
+                errors["base"] = "cannot_read_registers"
+            except SolixModbusCommunicationError:
+                errors["base"] = "modbus_error"
             else:
                 unique_id = (
                     f"{user_input[CONF_HOST]}:"
@@ -98,8 +107,8 @@ class SolixConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     default=current.get(CONF_SLAVE_ID, DEFAULT_SLAVE_ID),
                 ): selector.NumberSelector(
                     selector.NumberSelectorConfig(
-                        min=1,
-                        max=247,
+                        min=0,
+                        max=255,
                         mode=selector.NumberSelectorMode.BOX,
                     )
                 ),

@@ -14,7 +14,9 @@
       }
     },
     "error": {
-      "cannot_connect": "Unable to connect or read Modbus registers."
+      "cannot_connect": "Unable to connect to the charger. Verify IP, port, and local network reachability.",
+      "cannot_read_registers": "Connected, but Modbus registers could not be read. Verify Modbus TCP is enabled and try Slave ID 1 or 255.",
+      "modbus_error": "Modbus communication failed during setup. Check Home Assistant logs for details."
     },
     "abort": {
       "already_configured": "This charger is already configured."

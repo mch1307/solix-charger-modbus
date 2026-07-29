@@ -22,7 +22,7 @@ When you add the integration from Home Assistant, you can set:
 - Name
 - Host
 - Port, default `502`
-- Slave ID, default `1`
+- Slave ID, default `1` (supported range `0` to `255`)
 - Poll interval, default `10` seconds
 
 ## Available Entities
@@ -73,6 +73,7 @@ The integration currently reads the documented Modbus registers for:
 
 - The charger must have Modbus TCP enabled in the Anker app.
 - The documentation indicates Modbus TCP uses port `502`.
+- If setup reports that register reads fail, verify the charger's Slave ID in the app. The integration validates using the configured ID and also probes common IDs (`1`, `255`, `0`) during setup.
 - The protocol document was used as the source for the current register mapping.
 
 ## Project Status

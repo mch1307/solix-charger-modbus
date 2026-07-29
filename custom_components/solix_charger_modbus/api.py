@@ -38,6 +38,14 @@ class SolixModbusCommunicationError(SolixModbusError):
     """Raised when communication with Modbus fails."""
 
 
+class SolixModbusConnectionError(SolixModbusCommunicationError):
+    """Raised when TCP connection to the charger fails."""
+
+
+class SolixModbusReadError(SolixModbusCommunicationError):
+    """Raised when register reads fail after TCP connection succeeds."""
+
+
 class SolixChargerModbusClient:
     """Async Modbus client for the Anker SOLIX charger."""
 
@@ -53,22 +61,62 @@ class SolixChargerModbusClient:
         """Validate Modbus connectivity and register addressing."""
         await self._async_ensure_connected()
 
+        candidate_slave_ids = [self._slave_id]
+        for slave_id in (1, 255, 0):
+            if slave_id not in candidate_slave_ids:
+                candidate_slave_ids.append(slave_id)
+
+        errors_by_slave_id: dict[int, str] = {}
+        successful_slave_id: int | None = None
+        for candidate_slave_id in candidate_slave_ids:
+            self._slave_id = candidate_slave_id
+            try:
+                await self._async_detect_address_offset()
+                successful_slave_id = candidate_slave_id
+                break
+            except SolixModbusReadError as exception:
+                errors_by_slave_id[candidate_slave_id] = str(exception)
+
+        if successful_slave_id is not None:
+            self._slave_id = successful_slave_id
+            return
+
+        self._slave_id = candidate_slave_ids[0]
+
+        if len(errors_by_slave_id) > 1 and self._slave_id in errors_by_slave_id:
+            suggested_ids = [
+                str(slave_id)
+                for slave_id in errors_by_slave_id
+                if slave_id != self._slave_id
+            ]
+            if suggested_ids:
+                raise SolixModbusReadError(
+                    "Unable to read Modbus registers with slave ID "
+                    f"{self._slave_id}. Also tried {', '.join(suggested_ids)}. "
+                    "Verify the charger's configured slave ID in the Anker app."
+                )
+
+        raise SolixModbusReadError(
+            "Could not read product register (20000/19999)."
+        )
+
+    async def _async_detect_address_offset(self) -> None:
+        """Detect whether the charger uses 20000- or 19999-based addressing."""
         for offset in (0, -1):
             try:
                 result = await self._read_holding_registers_raw(
                     address=REG_PRODUCT_NUMBER + offset,
                     count=1,
+                    timeout_seconds=3,
                 )
-            except SolixModbusCommunicationError:
+            except SolixModbusReadError:
                 continue
 
             if result and result[0] >= 0:
                 self._address_offset = offset
                 return
 
-        raise SolixModbusCommunicationError(
-            "Could not read product register (20000/19999)."
-        )
+        raise SolixModbusReadError("Product register probe failed.")
 
     async def async_get_data(self) -> dict[str, Any]:
         """Read the main telemetry and status data from the charger."""
@@ -145,42 +193,47 @@ class SolixChargerModbusClient:
         try:
             connected = await self._client.connect()
         except Exception as exception:  # pylint: disable=broad-except
-            raise SolixModbusCommunicationError(
+            raise SolixModbusConnectionError(
                 f"Failed connecting to charger at {self._host}:{self._port}: {exception}"
             ) from exception
 
         if not connected:
-            raise SolixModbusCommunicationError(
+            raise SolixModbusConnectionError(
                 f"Unable to connect to charger at {self._host}:{self._port}."
             )
 
-    async def _read_holding_registers_raw(self, address: int, count: int) -> list[int]:
+    async def _read_holding_registers_raw(
+        self,
+        address: int,
+        count: int,
+        timeout_seconds: float = 10,
+    ) -> list[int]:
         """Read raw holding register values from an absolute Modbus address."""
         if self._client is None:
-            raise SolixModbusCommunicationError("Client is not connected.")
+            raise SolixModbusReadError("Client is not connected.")
 
         try:
-            async with asyncio.timeout(10):
+            async with asyncio.timeout(timeout_seconds):
                 response = await self._client.read_holding_registers(
                     address=address,
                     count=count,
                     slave=self._slave_id,
                 )
         except TimeoutError as exception:
-            raise SolixModbusCommunicationError(
+            raise SolixModbusReadError(
                 f"Timeout reading address {address}."
             ) from exception
         except ModbusException as exception:
-            raise SolixModbusCommunicationError(
+            raise SolixModbusReadError(
                 f"Modbus error reading address {address}: {exception}"
             ) from exception
         except Exception as exception:  # pylint: disable=broad-except
-            raise SolixModbusCommunicationError(
+            raise SolixModbusReadError(
                 f"Unexpected error reading address {address}: {exception}"
             ) from exception
 
         if response.isError():
-            raise SolixModbusCommunicationError(
+            raise SolixModbusReadError(
                 f"Device returned Modbus exception while reading {address}."
             )
 
