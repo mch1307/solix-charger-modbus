@@ -20,6 +20,7 @@ from .const import (
     DEFAULT_SCAN_INTERVAL_SECONDS,
     DEFAULT_SLAVE_ID,
     DOMAIN,
+    LOGGER,
 )
 
 
@@ -45,10 +46,19 @@ class SolixConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 await client.async_validate_connection()
             except SolixModbusConnectionError:
+                LOGGER.exception(
+                    "Failed to connect to Modbus charger during setup"
+                )
                 errors["base"] = "cannot_connect"
             except SolixModbusReadError:
+                LOGGER.exception(
+                    "Connected to Modbus charger, but register validation failed"
+                )
                 errors["base"] = "cannot_read_registers"
             except SolixModbusCommunicationError:
+                LOGGER.exception(
+                    "General Modbus communication failure during setup"
+                )
                 errors["base"] = "modbus_error"
             else:
                 unique_id = (
