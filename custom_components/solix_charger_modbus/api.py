@@ -52,8 +52,8 @@ class SolixChargerModbusClient:
     def __init__(self, host: str, port: int, slave_id: int) -> None:
         """Initialize client configuration."""
         self._host = host
-        self._port = port
-        self._slave_id = slave_id
+        self._port = int(port)
+        self._slave_id = int(slave_id)
         self._client: AsyncModbusTcpClient | None = None
         self._address_offset = 0
 

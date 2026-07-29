@@ -35,10 +35,11 @@ class SolixConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
+            normalized_input = self._normalize_user_input(user_input)
             client = SolixChargerModbusClient(
-                host=user_input[CONF_HOST],
-                port=user_input[CONF_PORT],
-                slave_id=user_input[CONF_SLAVE_ID],
+                host=normalized_input[CONF_HOST],
+                port=normalized_input[CONF_PORT],
+                slave_id=normalized_input[CONF_SLAVE_ID],
             )
 
             try:
@@ -51,15 +52,15 @@ class SolixConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "modbus_error"
             else:
                 unique_id = (
-                    f"{user_input[CONF_HOST]}:"
-                    f"{user_input[CONF_PORT]}:"
-                    f"{user_input[CONF_SLAVE_ID]}"
+                    f"{normalized_input[CONF_HOST]}:"
+                    f"{normalized_input[CONF_PORT]}:"
+                    f"{normalized_input[CONF_SLAVE_ID]}"
                 )
                 await self.async_set_unique_id(unique_id)
                 self._abort_if_unique_id_configured()
 
-                title = user_input.get(CONF_NAME) or user_input[CONF_HOST]
-                return self.async_create_entry(title=title, data=user_input)
+                title = normalized_input.get(CONF_NAME) or normalized_input[CONF_HOST]
+                return self.async_create_entry(title=title, data=normalized_input)
             finally:
                 await client.async_close()
 
@@ -127,3 +128,12 @@ class SolixConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 ),
             }
         )
+
+    @staticmethod
+    def _normalize_user_input(user_input: dict) -> dict:
+        """Normalize submitted form values to the expected runtime types."""
+        normalized = dict(user_input)
+        normalized[CONF_PORT] = int(normalized[CONF_PORT])
+        normalized[CONF_SLAVE_ID] = int(normalized[CONF_SLAVE_ID])
+        normalized[CONF_SCAN_INTERVAL] = int(normalized[CONF_SCAN_INTERVAL])
+        return normalized
