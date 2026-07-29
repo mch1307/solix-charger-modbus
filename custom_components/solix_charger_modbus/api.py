@@ -104,7 +104,7 @@ class SolixChargerModbusClient:
         """Detect whether the charger uses 20000- or 19999-based addressing."""
         for offset in (0, -1):
             try:
-                result = await self._read_holding_registers_raw(
+                result = await self._read_input_registers_raw(
                     address=REG_PRODUCT_NUMBER + offset,
                     count=1,
                     timeout_seconds=3,
@@ -239,9 +239,46 @@ class SolixChargerModbusClient:
 
         return list(response.registers)
 
+    async def _read_input_registers_raw(
+        self,
+        address: int,
+        count: int,
+        timeout_seconds: float = 10,
+    ) -> list[int]:
+        """Read raw input register values from an absolute Modbus address."""
+        if self._client is None:
+            raise SolixModbusReadError("Client is not connected.")
+
+        try:
+            async with asyncio.timeout(timeout_seconds):
+                response = await self._client.read_input_registers(
+                    address=address,
+                    count=count,
+                    slave=self._slave_id,
+                )
+        except TimeoutError as exception:
+            raise SolixModbusReadError(
+                f"Timeout reading address {address}."
+            ) from exception
+        except ModbusException as exception:
+            raise SolixModbusReadError(
+                f"Modbus error reading address {address}: {exception}"
+            ) from exception
+        except Exception as exception:  # pylint: disable=broad-except
+            raise SolixModbusReadError(
+                f"Unexpected error reading address {address}: {exception}"
+            ) from exception
+
+        if response.isError():
+            raise SolixModbusReadError(
+                f"Device returned Modbus exception while reading {address}."
+            )
+
+        return list(response.registers)
+
     async def _read_holding_registers(self, doc_address: int, count: int) -> list[int]:
         """Read registers using the detected 20000/19999 addressing offset."""
-        return await self._read_holding_registers_raw(
+        return await self._read_input_registers_raw(
             address=doc_address + self._address_offset,
             count=count,
         )
