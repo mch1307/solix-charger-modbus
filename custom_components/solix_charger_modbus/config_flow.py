@@ -53,9 +53,13 @@ class SolixConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     "Failed to connect to Modbus charger during setup"
                 )
                 errors["base"] = "cannot_connect"
-            except SolixModbusReadError:
-                LOGGER.warning(
-                    "Connected to Modbus charger, but register validation failed"
+            except SolixModbusReadError as exception:
+                LOGGER.debug(
+                    "Register validation failed during setup for %s:%s (slave ID %s): %s",
+                    normalized_input[CONF_HOST],
+                    normalized_input[CONF_PORT],
+                    normalized_input[CONF_SLAVE_ID],
+                    exception,
                 )
                 errors["base"] = "cannot_read_registers"
             except SolixModbusCommunicationError:
